@@ -26,7 +26,7 @@ export async  function POST(req: NextRequest) {
   //const data = await req.json();
   //return Response.json(data);
 
-  const { title } = await req.json();
+  const { title, uid } = await req.json();
 
   if (title === undefined) {
     const errorMessage = {
@@ -35,7 +35,14 @@ export async  function POST(req: NextRequest) {
     return NextResponse.json(errorMessage, { status: 422 });
   }
 
-  const addedTodo = await addTodos({ title });
+  if (uid === undefined) {
+    const errorMessage = {
+      message : 'not in with google login.'
+    }
+    return NextResponse.json(errorMessage, { status: 401 });
+  }
+
+  const addedTodo = await addTodos({ title, uid });
 
   const newTodo = {
     //id: "10",

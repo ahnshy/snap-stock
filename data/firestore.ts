@@ -55,16 +55,17 @@ export async function fetchTodos() {
 }
 
 // add to do docs
-export async function addTodos({ title } : any) {
+export async function addTodos(todo: { title: string; uid: string }) {
   const newItemRef = doc(collection(db, "todos"));
 
   const createAtTimestamp = Timestamp.fromDate(new Date());
 
   const newItem = {
     id: newItemRef.id,
-    title: title,
+    title: todo.title,
     is_done: false,
-    create_at: createAtTimestamp
+    create_at: createAtTimestamp,
+    uid: todo.uid
   }
 
   await setDoc(newItemRef, newItem);

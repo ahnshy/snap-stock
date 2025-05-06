@@ -9,6 +9,7 @@ export type Todo= {
   title: string;
   is_done: boolean;
   create_at: Date;
+  uid: string;
 }
 
 export type CustomModalType = 'detail' | 'modify' | 'delete'

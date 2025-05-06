@@ -66,7 +66,8 @@ const TodosTable = ({ todos }: { todos: Todo[] }) => {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         title,
-        uid: session!.user!.uid,  // 로그인된 사용자의 uid 함께 전송
+        //uid: session!.user!.uid,  // 로그인된 사용자의 uid 함께 전송
+        uid: session.user.uid,
       }),
       cache: "no-store",
     });
@@ -199,8 +200,8 @@ const TodosTable = ({ todos }: { todos: Todo[] }) => {
         {status === "authenticated" && (
             <div className="flex w-full flex-wrap md:flex-nowrap gap-4">
               <Input
-                  label="새 할 일 입력"
-                  placeholder="Enter stock market search keywords"
+                  label="검색 할 증시 키워드를 입력하세요."
+                  placeholder="Enter stock search keywords"
                   value={newTodoInput}
                   onValueChange={(val) => {
                     setNewTodoInput(val);
