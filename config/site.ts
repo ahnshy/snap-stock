@@ -68,7 +68,7 @@ export const siteConfig = {
     },
   ],
   links: {
-    github: "https://github.com/ahnshy",
+    github: "https://github.com/ahnshy/snap-stock",
     twitter: "https://twitter.com/getnextui",
     docs: "https://nextui.org",
     discord: "https://discord.gg/9b6yyZKmH4",
