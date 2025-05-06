@@ -88,13 +88,12 @@ export const Navbar = () => {
             {status === "loading" ? (
                 <span>로딩 중...</span>
             ) : session ? (
-                // 로그인 후: 프로필 아바타로 표시 (클릭 시 signOut)
                 <Avatar
                     size="sm"
                     src={session.user?.image || ""}
                     alt={session.user?.name || "User"}
-                    pointer
                     onClick={() => signOut({ callbackUrl: "/" })}
+                    css={{ cursor: "pointer" }}
                 />
             ) : (
                 // 로그인 전: 구글 로고 + 텍스트
@@ -153,8 +152,8 @@ export const Navbar = () => {
                       size="sm"
                       src={session.user?.image || ""}
                       alt={session.user?.name || "User"}
-                      pointer
                       onClick={() => signOut({ callbackUrl: "/" })}
+                      css={{ cursor: "pointer" }}
                   />
               ) : (
                   <Button
