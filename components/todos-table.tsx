@@ -1,7 +1,15 @@
 "use client";
 
-import React, {useState} from "react";
-import {Table, TableBody, TableCell, TableColumn, TableHeader, TableRow,} from "@nextui-org/table";
+import React, { useState } from "react";
+import { useSession, signIn } from "next-auth/react";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableColumn,
+  TableHeader,
+  TableRow,
+} from "@nextui-org/table";
 import {
   Button,
   Dropdown,
@@ -17,47 +25,48 @@ import {
   Spinner,
   useDisclosure,
 } from "@nextui-org/react";
-import {useRouter} from "next/navigation";
-import {toast, ToastContainer} from "react-toastify";
+import { useRouter } from "next/navigation";
+import { toast, ToastContainer } from "react-toastify";
 
-import {VerticalDotsIcon} from "./icons";
+import { VerticalDotsIcon } from "./icons";
 import CustomModal from "./custom-modal";
 
-import {CustomModalType, FocusedTodoType, Todo} from "@/types";
+import { CustomModalType, FocusedTodoType, Todo } from "@/types";
 
 import "react-toastify/dist/ReactToastify.css";
 
 const TodosTable = ({ todos }: { todos: Todo[] }) => {
-  // add possible todo
+  const { data: session, status } = useSession();
   const [todoAddEnable, setTodoAddEnable] = useState(false);
-
-  // inputted to do
   const [newTodoInput, setNewTodoInput] = useState("");
-
-  // Status Loading
-  const [isLoading, setIsLoading] = useState<Boolean>(false);
-
-  // modal type
+  const [isLoading, setIsLoading] = useState(false);
   const [currentModalData, setCurrentModalData] = useState<FocusedTodoType>({
     focusedTodo: null,
-    modalType: "detail" as CustomModalType,
+    modalType: "detail",
   });
 
   const router = useRouter();
+  const { isOpen, onOpen, onOpenChange } = useDisclosure();
+
+  const notifySuccessEvent = (msg: string) => toast.success(msg);
+
   const addTodoHandler = async (title: string) => {
-    if (!todoAddEnable) {
+    if (status !== "authenticated") {
+      signIn("google");
       return;
     }
+    if (!todoAddEnable) return;
 
     setTodoAddEnable(false);
     setIsLoading(true);
-
-    await new Promise((f) => setTimeout(f, 600));
+    await new Promise((res) => setTimeout(res, 600));
 
     await fetch(`${process.env.NEXT_PUBLIC_BASE_API_URL}/todos`, {
-      method: "post",
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        title: title,
+        title,
+        uid: session!.user!.uid,  // 로그인된 사용자의 uid 함께 전송
       }),
       cache: "no-store",
     });
@@ -65,22 +74,20 @@ const TodosTable = ({ todos }: { todos: Todo[] }) => {
     setNewTodoInput("");
     router.refresh();
     setIsLoading(false);
-    setTodoAddEnable(false);
     notifySuccessEvent("Succeed to add todo");
-    //console.log(`new to do job success: ${newTodoInput}`);
   };
 
   const editTodoHandler = async (
-    id: string,
-    modifiedTitle: string,
-    modifiedIsDone: boolean,
+      id: string,
+      modifiedTitle: string,
+      modifiedIsDone: boolean
   ) => {
     setIsLoading(true);
-
-    await new Promise((f) => setTimeout(f, 600));
+    await new Promise((res) => setTimeout(res, 600));
 
     await fetch(`${process.env.NEXT_PUBLIC_BASE_API_URL}/todos/${id}`, {
-      method: "post",
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         title: modifiedTitle,
         is_done: modifiedIsDone,
@@ -88,53 +95,29 @@ const TodosTable = ({ todos }: { todos: Todo[] }) => {
       cache: "no-store",
     });
 
-    //setNewTodoInput('');
     router.refresh();
     setIsLoading(false);
-    //setTodoAddEnable(false);
-    notifySuccessEvent("Succeed to modified todo");
-    //console.log(`new to do job success: ${newTodoInput}`);
+    notifySuccessEvent("Succeed to modify todo");
   };
 
   const deleteTodoHandler = async (id: string) => {
     setIsLoading(true);
-
-    await new Promise((f) => setTimeout(f, 600));
+    await new Promise((res) => setTimeout(res, 600));
 
     await fetch(`${process.env.NEXT_PUBLIC_BASE_API_URL}/todos/${id}`, {
-      method: "delete",
+      method: "DELETE",
       cache: "no-store",
     });
 
     router.refresh();
     setIsLoading(false);
-    notifySuccessEvent("Succeed to deleted todo");
-    //console.log(`new to do job success: ${newTodoInput}`);
-  };
-
-  const DisabledTodoAddButton = () => {
-    // <Button color="default" className="h-14">Enter</Button>
-    <Popover placement="top" showArrow={true}>
-      <PopoverTrigger>
-        <Button className="h-14" color="default">
-          Enter
-        </Button>
-      </PopoverTrigger>
-      <PopoverContent>
-        <div className="px-1 py-2">
-          <div className="text-small font-bold">Notice</div>
-          <div className="text-tiny">Empty to do. input new things to do</div>
-        </div>
-      </PopoverContent>
-    </Popover>;
+    notifySuccessEvent("Succeed to delete todo");
   };
 
   const applyIsDoneCSS = (isDone: boolean) =>
-    isDone ? "line-through text-gray-900/50 dark:text-white/40" : "";
-  // (isDone ? "line-through text-white/50" : "")
+      isDone ? "line-through text-gray-500" : "";
 
-  const TodoRow = (item: Todo) => {
-    return (
+  const TodoRow = (item: Todo) => (
       <TableRow key={item.id}>
         <TableCell className={applyIsDoneCSS(item.is_done)}>
           {item.id.slice(0, 4)}
@@ -142,31 +125,28 @@ const TodosTable = ({ todos }: { todos: Todo[] }) => {
         <TableCell className={applyIsDoneCSS(item.is_done)}>
           {item.title}
         </TableCell>
-        {/*<TableCell>{item.is_done ? "&#xU+2705;" : "&#128204;"}</TableCell>*/}
         <TableCell className={applyIsDoneCSS(item.is_done)}>
           {item.is_done ? "Done" : "Progress"}
         </TableCell>
-        <TableCell
-          className={applyIsDoneCSS(item.is_done)}
-        >{`${item.create_at}`}</TableCell>
+        <TableCell className={applyIsDoneCSS(item.is_done)}>
+          {item.create_at}
+        </TableCell>
         <TableCell>
-          <div className="relative flex justify-end items-center gap-2">
+          <div className="flex justify-end">
             <Dropdown>
               <DropdownTrigger>
                 <Button isIconOnly size="sm" variant="light">
-                  <VerticalDotsIcon className="text-default-300" />
+                  <VerticalDotsIcon />
                 </Button>
               </DropdownTrigger>
               <DropdownMenu
-                onAction={(key) => {
-                  //console.log(`selected item.id: ${item.id} / key: ${key}`);
-                  //console.log(`selected item.id: ${item.id} / key: ${key}`);
-                  setCurrentModalData({
-                    focusedTodo: item,
-                    modalType: key as CustomModalType,
-                  });
-                  onOpen();
-                }}
+                  onAction={(key) => {
+                    setCurrentModalData({
+                      focusedTodo: item,
+                      modalType: key as CustomModalType,
+                    });
+                    onOpen();
+                  }}
               >
                 <DropdownItem key="detail">View</DropdownItem>
                 <DropdownItem key="modify">Modify</DropdownItem>
@@ -176,103 +156,84 @@ const TodosTable = ({ todos }: { todos: Todo[] }) => {
           </div>
         </TableCell>
       </TableRow>
-    );
-  };
+  );
 
-  // apply react-toastify
-  const notifySuccessEvent = (msg: string) => toast.success(msg);
-
-  // Modal Status Closure
-  const { isOpen, onOpen, onOpenChange } = useDisclosure();
-
-  const ModalComponent = () => {
-    return (
-      <div>
+  return (
+      <div className="flex flex-col space-y-4">
+        {/* Modal */}
         <Modal backdrop="blur" isOpen={isOpen} onOpenChange={onOpenChange}>
           <ModalContent>
             {(onClose) =>
-              currentModalData.focusedTodo && (
-                <CustomModal
-                  focusedTodo={currentModalData.focusedTodo}
-                  modalType={currentModalData.modalType}
-                  onClose={onClose}
-                  onDelete={async (id) => {
-                    console.log("onDelete / id:", id);
-                    await deleteTodoHandler(id);
-                    onClose();
-                  }}
-                  onEdit={async (id, title, isDone) => {
-                    //console.log(id, title, isDone);
-                    await editTodoHandler(id, title, isDone);
-                    onClose();
-                  }}
-                />
-              )
+                currentModalData.focusedTodo && (
+                    <CustomModal
+                        focusedTodo={currentModalData.focusedTodo}
+                        modalType={currentModalData.modalType}
+                        onClose={onClose}
+                        onDelete={async (id) => {
+                          await deleteTodoHandler(id);
+                          onClose();
+                        }}
+                        onEdit={async (id, title, isDone) => {
+                          await editTodoHandler(id, title, isDone);
+                          onClose();
+                        }}
+                    />
+                )
             }
           </ModalContent>
         </Modal>
-      </div>
-    );
-  };
 
-  return <div>
-    <div className="flex flex-col space-y-2">
-      {ModalComponent()}
-      <ToastContainer
-          closeOnClick
-          draggable
-          pauseOnFocusLoss
-          pauseOnHover
-          autoClose={2000}
-          hideProgressBar={false}
-          newestOnTop={false}
-          position="top-right"
-          rtl={false}
-          theme="dark"
-      />
-      <div className="flex w-full flex-wrap md:flex-nowrap gap-4">
-        <Input
-            label="증시 검색어 입력"
-            placeholder="Enter stock market search keywords"
-            type="text"
-            value={newTodoInput}
-            onValueChange={(changedInput) => {
-              setNewTodoInput(changedInput);
-              setTodoAddEnable(changedInput.length > 0);
-            }}
+        {/* Toast */}
+        <ToastContainer
+            position="top-right"
+            autoClose={2000}
+            hideProgressBar={false}
+            newestOnTop={false}
+            closeOnClick
+            pauseOnHover
+            draggable
+            theme="dark"
         />
-        {!todoAddEnable ? (
-            void DisabledTodoAddButton()
-        ) : (
-            <Button
-                className="h-14"
-                color="warning"
-                onPress={async () => {
-                  await addTodoHandler(newTodoInput);
-                }}
-            >
-              Enter
-            </Button>
-        )}
-      </div>
-      <div className="h-6">
-        {isLoading && <Spinner color="warning" size="sm"/>}
-      </div>
 
-      <Table aria-label="Example static collection table">
-        <TableHeader>
-          <TableColumn>ID</TableColumn>
-          <TableColumn>TODO</TableColumn>
-          <TableColumn>STATUS</TableColumn>
-          <TableColumn>CREATED</TableColumn>
-          <TableColumn>Actions</TableColumn>
-        </TableHeader>
-        <TableBody emptyContent={"There are no items to show."}>
-          {todos && todos.map((item: Todo) => TodoRow(item))}
-        </TableBody>
-      </Table>
-    </div>
-  </div>;
+        {/* Input & Add Button: 로그인된 경우에만 표시 */}
+        {status === "authenticated" && (
+            <div className="flex w-full flex-wrap md:flex-nowrap gap-4">
+              <Input
+                  label="새 할 일 입력"
+                  placeholder="Enter stock market search keywords"
+                  value={newTodoInput}
+                  onValueChange={(val) => {
+                    setNewTodoInput(val);
+                    setTodoAddEnable(val.length > 0);
+                  }}
+              />
+              <Button
+                  className="h-14"
+                  color="warning"
+                  onPress={() => addTodoHandler(newTodoInput)}
+                  disabled={!todoAddEnable}
+              >
+                Enter
+              </Button>
+              {isLoading && <Spinner size="sm" color="warning" />}
+            </div>
+        )}
+
+        {/* Todo Table */}
+        <Table aria-label="Todo List">
+          <TableHeader>
+            <TableColumn>ID</TableColumn>
+            <TableColumn>TODO</TableColumn>
+            <TableColumn>STATUS</TableColumn>
+            <TableColumn>CREATED</TableColumn>
+            <TableColumn>ACTIONS</TableColumn>
+          </TableHeader>
+          <TableBody emptyContent="There are no items to show.">
+            {todos.map(TodoRow)}
+          </TableBody>
+        </Table>
+      </div>
+  );
 };
 
 export default TodosTable;
