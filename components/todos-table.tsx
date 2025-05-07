@@ -67,7 +67,7 @@ const TodosTable = ({ todos }: { todos: Todo[] }) => {
       body: JSON.stringify({
         title,
         //uid: session!.user!.uid,  // 로그인된 사용자의 uid 함께 전송
-        uid: session.user.uid,
+        uid: session.user.email,
       }),
       cache: "no-store",
     });
