@@ -1,18 +1,27 @@
 // app/api/auth/[...nextauth]/route.ts
+
 import NextAuth from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
 
+// 1) NextAuth 옵션 정의
 export const authOptions = {
     providers: [
         GoogleProvider({
             clientId: process.env.GOOGLE_CLIENT_ID!,
             clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+            authorization: {
+                params: {
+                    scope: "openid email profile",
+                },
+            },
         }),
     ],
-    secret: process.env.NEXTAUTH_SECRET,
-    session: {
-        strategy: "jwt",
+    callbacks: {
+        async session({ session }) {
+            return session;
+        },
     },
+    secret: process.env.NEXTAUTH_SECRET,
 };
 
 const handler = NextAuth(authOptions);
