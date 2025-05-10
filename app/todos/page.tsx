@@ -4,8 +4,8 @@ import TodosTable from "@/components/todos-table"
 import { fetchTodos } from "@/data/firestore";
 import { Todo } from "@/types";
 
-async function getInitialTodosList() {
-  console.log("getInitialTodosList called.");
+async function getInitialList() {
+  console.log("getInitialList called.");
   //await new Promise(f => setTimeout(f, 3000)); // 3초 대기 후 10 리턴
   //const response = await fetchTodos();
   const response = await fetch(`${process.env.BASE_API_URL}/todos`,
@@ -23,9 +23,9 @@ async function getInitialTodosList() {
   return response.json();
 }
 
-export default async function TodosPage() {
+export default async function EntryPage() {
 
-  const res = await getInitialTodosList();
+  const res = await getInitialList();
 
   const fetched = res?.data?? [];
 
