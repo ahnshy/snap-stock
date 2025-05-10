@@ -31,7 +31,7 @@ export default async function EntryPage() {
 
   return (
     <div className="flex flex-col space-y-8">
-      <h1 className={title()}>증시 검색</h1>
+      <h1 className={title()}>증시 현황</h1>
       <TodosTable todos={ fetched } />
     </div>
   );
