@@ -213,7 +213,7 @@ const TodosTable = ({ todos }: { todos: Todo[] }) => {
                   onPress={() => addTodoHandler(newTodoInput)}
                   disabled={!todoAddEnable}
               >
-                Enter
+                등록
               </Button>
               {isLoading && <Spinner size="sm" color="warning" />}
             </div>
