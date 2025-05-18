@@ -1,150 +1,130 @@
-// Import the functions you need from the SDKs you need
-import { initializeApp } from "firebase/app";
-
+// data/firestore.ts
+import { initializeApp, getApps, FirebaseApp } from "firebase/app";
 import {
-  getFirestore, collection, getDocs, getDoc, setDoc, doc, deleteDoc, updateDoc,
-  Timestamp, query, orderBy, limit
+  getFirestore,
+  collection,
+  getDocs,
+  getDoc,
+  setDoc,
+  doc,
+  deleteDoc,
+  updateDoc,
+  Timestamp,
+  query,
+  orderBy,
 } from "firebase/firestore";
 import { Todo } from "@/types";
 
-// https://firebase.google.com/docs/web/setup#available-libraries
+const {
+  API_KEY,
+  AUTH_DOMAIN,
+  PROJECT_ID,
+  STORAGE_BUCKET,
+  MESSAGING_SENDER_ID,
+  APP_ID,
+} = process.env;
 
-// Your web app's Firebase configuration
-const firebaseConfig = {
-  apiKey: process.env.API_KEY,
-  authDomain: process.env.AUTH_DOMAIN,
-  projectId: process.env.PROJECT_ID,
-  storageBucket: process.env.STORAGE_BUCKET,
-  messagingSenderId: process.env.MESSAGING_SENDER_ID,
-  appId: process.env.APP_ID,
-};
+let firebaseApp: FirebaseApp | null = null;
+function initFirebase() {
+  if (getApps().length === 0) {
+    if (!API_KEY || !AUTH_DOMAIN || !PROJECT_ID || !STORAGE_BUCKET || !MESSAGING_SENDER_ID || !APP_ID) {
+      console.warn(
+          "[firebase] 환경변수 미설정으로 Firebase 초기화를 건너뜁니다."
+      );
+      return;
+    }
+    firebaseApp = initializeApp({
+      apiKey: API_KEY,
+      authDomain: AUTH_DOMAIN,
+      projectId: PROJECT_ID,
+      storageBucket: STORAGE_BUCKET,
+      messagingSenderId: MESSAGING_SENDER_ID,
+      appId: APP_ID,
+    });
+  }
+}
 
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
+// getFirestore()도 initFirebase 이후에 호출되도록 래핑
+function getDB() {
+  initFirebase();
+  if (!firebaseApp) {
+    throw new Error(
+        "[firebase] 초기화되지 않아 Firestore를 가져올 수 없습니다."
+    );
+  }
+  return getFirestore(firebaseApp);
+}
 
 // get all docs
-export async function fetchTodos() {
+export async function fetchTodos(): Promise<Todo[]> {
+  const db = getDB();
   const todosRef = collection(db, "todos");
-  //const descQuery = query(todosRef, orderBy("todosRef","createat"), limit(3));
-  const descQuery = query(todosRef, orderBy("create_at","desc"));
+  const descQuery = query(todosRef, orderBy("create_at", "desc"));
+  const snapshot = await getDocs(descQuery);
 
-  const querySnapshot = await getDocs(descQuery);
-
-  let fetchedTodos: Todo[] =[];
-
-  if (querySnapshot.empty) {
-    console.log("fetchedTodos empty.");
-    return fetchedTodos;
-  }
-
-  querySnapshot.forEach((doc) => {
-    //console.log(doc.id, " => ", doc.data());
-
-    const Todo = {
-      id:doc.id,
-      title:doc.data()["title"],
-      is_done:doc.data()["is_done"],
-      // create_at:doc.data()["create_at"].toDate(),
-      create_at:doc.data()["create_at"].toDate().toLocaleTimeString('ko'),
-    }
-    fetchedTodos.push(Todo);
+  const fetched: Todo[] = [];
+  snapshot.forEach((docSnap) => {
+    const data = docSnap.data();
+    fetched.push({
+      id: docSnap.id,
+      title: data.title,
+      is_done: data.is_done,
+      create_at: data.create_at.toDate(),
+      uid: data.uid,
+    });
   });
-
-  return fetchedTodos;
+  return fetched;
 }
 
 // add to do docs
 export async function addTodos(todo: { title: string; uid: string }) {
-  const newItemRef = doc(collection(db, "todos"));
-
-  const createAtTimestamp = Timestamp.fromDate(new Date());
-
+  const db = getDB();
+  const newRef = doc(collection(db, "todos"));
+  const ts = Timestamp.fromDate(new Date());
   const newItem = {
-    id: newItemRef.id,
+    id: newRef.id,
     title: todo.title,
     is_done: false,
-    create_at: createAtTimestamp,
-    uid: todo.uid
-  }
-
-  await setDoc(newItemRef, newItem);
-
-  return newItem;
-
-  // return {
-  //     id: newItemRef.id,
-  //     title: title,
-  //     is_done: false,
-  //     create_at: createAtTimestamp.toDate(),
-  // };
+    create_at: ts,
+    uid: todo.uid,
+  };
+  await setDoc(newRef, newItem);
+  return { ...newItem, create_at: ts.toDate() };
 }
 
 // get to do by id
-export async function getTodo(id : any) {
-
-  if (id === null){
-    return null;
-  }
-
-  const itemDocRef = doc(db, "todos", id);
-  const itemDocSnap = await getDoc(itemDocRef);
-
-  if (itemDocSnap.exists()) {
-    //console.log("Document data:", itemDocSnap.data());
-
-    const item = {
-      id:itemDocSnap.id,
-      title:itemDocSnap.data()["title"],
-      is_done:itemDocSnap.data()["is_done"],
-      create_at:itemDocSnap.data()["create_at"].toDate(),
-      //create_at:doc.data()["create_at"].toDate().toLocaleTimeString('ko'),
-    }
-
-    return item;
-
-  } else {
-    console.log("No Such Document!");
-    return null;
-  }
+export async function getTodo(id: string) {
+  if (!id) return null;
+  const db = getDB();
+  const docRef = doc(db, "todos", id);
+  const snap = await getDoc(docRef);
+  if (!snap.exists()) return null;
+  const data = snap.data();
+  return {
+    id: snap.id,
+    title: data.title,
+    is_done: data.is_done,
+    create_at: data.create_at.toDate(),
+    uid: data.uid,
+  } as Todo;
 }
 
-// delete to do by id
-export async function deleteTodo(id : any) {
-
-  const getedTodo = await getTodo(id);
-
-  if (getedTodo === null) {
-    return null;
-  }
-
+export async function deleteTodo(id: string) {
+  const existing = await getTodo(id);
+  if (!existing) return null;
+  const db = getDB();
   await deleteDoc(doc(db, "todos", id));
-  return getedTodo;
+  return existing;
 }
 
 // edit to do by id
-// @ts-ignore
-export async function updateTodo(id : any, { title: title, is_done: is_done }) {
-
-  const getedTodo = await getTodo(id);
-
-  if (getedTodo === null) {
-    return null;
-  }
-
-  const itemRef = doc(db, "todos", id);
-
-  await updateDoc(itemRef, {
-    title: title,
-    is_done: is_done
-  });
-
-  return {
-        id: id,
-        title: title,
-        is_done: is_done,
-        create_at: getedTodo.create_at
-    };
+export async function updateTodo(
+    id: string,
+    { title, is_done }: { title: string; is_done: boolean }
+) {
+  const existing = await getTodo(id);
+  if (!existing) return null;
+  const db = getDB();
+  await updateDoc(doc(db, "todos", id), { title, is_done });
+  return { ...existing, title, is_done } as Todo;
 }
-
-//module.exports = { fetchTodos, addTodos, getTodo, deleteTodo, updateTodo }
