@@ -1,64 +1,59 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getTodo, deleteTodo, updateTodo } from "@/data/firestore";
 
-// get single item by id
-export async  function GET(req: NextRequest,
-                           { params }: { params: {slug: string} }) {
+type SlugParams = { slug: string };
 
-  //console.log(params.slug);
-  if (params.slug === null || params.slug === undefined)
-    return new Response("",{ status : 200 });
-
-  const getedTodo = await getTodo(params.slug);
-
-  if (getedTodo === null) {
-    return new Response("",{ status : 204 });
+export async function GET(
+    request: NextRequest,
+    { params }: { params: Promise<SlugParams> }
+): Promise<NextResponse> {
+  const { slug } = await params;
+  if (!slug) {
+    return new NextResponse(null, { status: 400 });
   }
 
-  const res = {
-    message: 'get single item by id succeed!',
-    data: getedTodo
+  const todo = await getTodo(slug);
+  if (!todo) {
+    return new NextResponse(null, { status: 204 });
   }
-  return NextResponse.json(res, { status: 200 });
+
+  return NextResponse.json(
+      { message: "get single item by id succeed!", data: todo },
+      { status: 200 }
+  );
 }
 
-// delete single item by id
-export async  function DELETE(req: Request,
-                              { params }: { params: {slug: string} }) {
+export async function DELETE(
+    request: NextRequest,
+    { params }: { params: Promise<SlugParams> }
+): Promise<NextResponse> {
+  const { slug } = await params;
 
-  const deletedTodo = await deleteTodo(params.slug);
-
-  if (deletedTodo === null) {
-    return new Response(null,{ status : 204 });
+  const deleted = await deleteTodo(slug);
+  if (!deleted) {
+    return new NextResponse(null, { status: 204 });
   }
 
-  const res = {
-    message: 'delete single item by id succeed!'
-  }
-  return NextResponse.json(res, { status: 200 });
+  return NextResponse.json(
+      { message: "delete single item by id succeed!" },
+      { status: 200 }
+  );
 }
 
-// modify single item by id
-export async  function POST(req: Request,
-                            { params }: { params: {slug: string} }) {
+export async function POST(
+    request: NextRequest,
+    { params }: { params: Promise<SlugParams> }
+): Promise<NextResponse> {
+  const { slug } = await params;
+  const { title, is_done } = await request.json();
 
-  const { title, is_done } = await req.json();
-
-  // const editTodo = {
-  //   id: params.slug,
-  //   title,
-  //   is_done
-  // }
-
-  const updatedTodo = await updateTodo(params.slug, { title, is_done });
-
-  if (updatedTodo === null) {
-    return new Response(null,{ status : 204 });
+  const updated = await updateTodo(slug, { title, is_done });
+  if (!updated) {
+    return new NextResponse(null, { status: 204 });
   }
 
-  const res = {
-    message: 'modify single item by id succeed!',
-    data: updatedTodo
-  }
-  return NextResponse.json(res, { status: 200 });
+  return NextResponse.json(
+      { message: "modify single item by id succeed!", data: updated },
+      { status: 200 }
+  );
 }
