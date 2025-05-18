@@ -1,7 +1,5 @@
-// components/navbar.tsx
-
 "use client";
-
+import React from "react";
 import Image from "next/image";
 import {
   Navbar as NextUINavbar,
@@ -14,7 +12,6 @@ import {
 } from "@nextui-org/navbar";
 import { Button } from "@nextui-org/button";
 import { Link } from "@nextui-org/link";
-import { Input } from "@nextui-org/input";
 import { Avatar } from "@nextui-org/avatar";
 import NextLink from "next/link";
 import clsx from "clsx";
@@ -22,15 +19,10 @@ import { useSession, signIn, signOut } from "next-auth/react";
 
 import { siteConfig } from "@/config/site";
 import { ThemeSwitch } from "@/components/theme-switch";
-import {
-  GithubIcon,
-  HeartFilledIcon,
-  Logo,
-} from "@/components/icons";
+import { GithubIcon, HeartFilledIcon, Logo } from "@/components/icons";
 
 export const Navbar = () => {
   const { data: session, status } = useSession();
-
   const searchInput = <></>;
 
   return (
@@ -93,23 +85,18 @@ export const Navbar = () => {
                     src={session.user?.image || ""}
                     alt={session.user?.name || "User"}
                     onClick={() => signOut({ callbackUrl: "/" })}
-                    css={{ cursor: "pointer" }}
+                    className="cursor-pointer"
                 />
             ) : (
-                // 로그인 전: 구글 로고 + 텍스트
                 <Button
-                    auto
                     onPress={() => signIn("google", { callbackUrl: "/" })}
                     startContent={
-                      <Image
-                          src="/google-logo.svg"
-                          alt="Google"
-                          width={20}
-                          height={20}
-                      />
+                      <Image src="/google-logo.svg" alt="Google" width={20} height={20} />
                     }
+                    size="sm"
+                    className="w-auto cursor-pointer"
                 >
-                   Google Login
+                  Google Login
                 </Button>
             )}
           </NavbarItem>
@@ -153,7 +140,7 @@ export const Navbar = () => {
                       src={session.user?.image || ""}
                       alt={session.user?.name || "User"}
                       onClick={() => signOut({ callbackUrl: "/" })}
-                      css={{ cursor: "pointer" }}
+                      className="cursor-pointer"
                   />
               ) : (
                   <Button
