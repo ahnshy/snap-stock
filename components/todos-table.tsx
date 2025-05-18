@@ -269,7 +269,7 @@ const TodosTable = ({ todos }: { todos: Todo[] }) => {
                     {item.is_done ? "Done" : "Progress"}
                   </TableCell>
                   <TableCell className={applyIsDoneCSS(item.is_done)}>
-                    {item.create_at}
+                    {new Date(item.create_at).toLocaleString()}
                   </TableCell>
                   <TableCell>
                     <div className="flex justify-end">
