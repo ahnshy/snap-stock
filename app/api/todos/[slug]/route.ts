@@ -5,7 +5,7 @@ import { getTodo, deleteTodo, updateTodo } from "@/data/firestore";
 export async  function GET(req: NextRequest,
                            { params }: { params: {slug: string} }) {
 
-  console.log(params.slug);
+  //console.log(params.slug);
   if (params.slug === null || params.slug === undefined)
     return new Response("",{ status : 200 });
 
