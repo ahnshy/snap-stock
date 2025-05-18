@@ -10,7 +10,7 @@ export const authOptions: NextAuthOptions = {
             authorization: {
                 params: {
                     scope: "openid email profile",
-                    // (선택) 매번 consent 화면을 띄우고 싶다면
+                    // consent 화면을 별도창으로 처리 할 경우,
                     // prompt: "consent",
                     // access_type: "offline",
                     // response_type: "code"
