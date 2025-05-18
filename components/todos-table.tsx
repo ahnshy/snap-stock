@@ -54,7 +54,6 @@ const TodosTable = ({ todos }: { todos: Todo[] }) => {
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
   const notifySuccessEvent = (msg: string) => toast.success(msg);
 
-  // Debounced fetch for suggestions
   useEffect(() => {
     if (!newTodoInput) {
       setSuggestions([]);
