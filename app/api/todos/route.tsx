@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server"
 import { fetchTodos, addTodos } from "@/data/firestore"
-import dummyTodos from '@/data/sample.json'
 
 
 // get all list
