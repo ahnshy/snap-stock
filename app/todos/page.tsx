@@ -8,6 +8,8 @@ async function getInitialList() {
   console.log("getInitialList called.");
   //await new Promise(f => setTimeout(f, 3000)); // 3초 대기 후 10 리턴
   //const response = await fetchTodos();
+  //console.log(`${process.env.BASE_API_URL}/todos`);
+  //alert(`${process.env.BASE_API_URL}/todos`);
   const response = await fetch(`${process.env.BASE_API_URL}/todos`,
     { cache: 'no-store'})
 
