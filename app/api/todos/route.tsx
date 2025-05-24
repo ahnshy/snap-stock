@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
 import { fetchTodos, addTodos } from "@/data/firestore"
+import { PrismaClient } from '@prisma/client';
 
 
 // get all list
@@ -25,9 +26,9 @@ export async  function POST(req: NextRequest) {
   //const data = await req.json();
   //return Response.json(data);
 
-  const { title, uid } = await req.json();
+  const { code, title, uid } = await req.json();
 
-  if (title === undefined) {
+  if (code === undefined) {
     const errorMessage = {
       message : 'input a title.'
     }
@@ -41,10 +42,9 @@ export async  function POST(req: NextRequest) {
     return NextResponse.json(errorMessage, { status: 401 });
   }
 
-  const addedTodo = await addTodos({ title, uid });
-
+  const addedTodo = await addTodos({ code, title, uid });
   const newTodo = {
-    //id: "10",
+    code,
     message: "add to do success.!",
     title
     //is_done:false
