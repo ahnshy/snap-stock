@@ -77,18 +77,22 @@ export async function fetchTodos(): Promise<Todo[]> {
 }
 
 // add to do docs
-export async function addTodos(todo: { title: string; uid: string }) {
+export async function addTodos(todo: { code: string; title: string; uid: string }) {
   const db = getDB();
-  const newRef = doc(collection(db, "todos"));
   const ts = Timestamp.fromDate(new Date());
   const newItem = {
-    id: newRef.id,
+    id: todo.code,
     title: todo.title,
     is_done: false,
     create_at: ts,
     uid: todo.uid,
   };
+
+  //const newRef = doc(collection(db, "todos"));
+  //const newRef = doc(collection(db, "todos", todo.code));
+  const newRef = doc(db, "todos", todo.code);
   await setDoc(newRef, newItem);
+
   return { ...newItem, create_at: ts.toDate() };
 }
 
