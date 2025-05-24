@@ -41,6 +41,7 @@ const TodosTable = ({ todos }: { todos: Todo[] }) => {
   const { data: session, status } = useSession();
   const [todoAddEnable, setTodoAddEnable] = useState(false);
   const [newTodoInput, setNewTodoInput] = useState("");
+  const [newCodeInput, setNewCodeInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
   const [isSuggestLoading, setIsSuggestLoading] = useState(false);
@@ -77,7 +78,7 @@ const TodosTable = ({ todos }: { todos: Todo[] }) => {
     return () => clearTimeout(timer);
   }, [newTodoInput]);
 
-  const addTodoHandler = async (title: string) => {
+  const addTodoHandler = async (code: string, title: string) => {
     if (status !== "authenticated") {
       signIn("google");
       return;
@@ -91,11 +92,12 @@ const TodosTable = ({ todos }: { todos: Todo[] }) => {
     await fetch(`${process.env.NEXT_PUBLIC_BASE_API_URL}/todos`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ title, uid: session!.user!.email }),
+      body: JSON.stringify({ code, title, uid: session!.user!.email }),
       cache: "no-store",
     });
 
     setNewTodoInput("");
+    setNewCodeInput("");
     setSuggestions([]);
     router.refresh();
     setIsLoading(false);
@@ -211,6 +213,7 @@ const TodosTable = ({ todos }: { todos: Todo[] }) => {
                               key={s.code}
                               onClick={() => {
                                 setNewTodoInput(s.name);
+                                setNewCodeInput(s.code);
                                 setTodoAddEnable(true);
                                 setSuggestions([]);
                               }}
@@ -237,7 +240,7 @@ const TodosTable = ({ todos }: { todos: Todo[] }) => {
               <Button
                   className="h-14"
                   color="warning"
-                  onPress={() => addTodoHandler(newTodoInput)}
+                  onPress={() => addTodoHandler(newCodeInput, newTodoInput)}
                   disabled={!todoAddEnable}
               >
                 등록
@@ -259,7 +262,7 @@ const TodosTable = ({ todos }: { todos: Todo[] }) => {
             {todos.map((item) => (
                 <TableRow key={item.id}>
                   <TableCell className={applyIsDoneCSS(item.is_done)}>
-                    {item.id.slice(0, 4)}
+                    {item.id.slice(0, 6)}
                   </TableCell>
                   <TableCell className={applyIsDoneCSS(item.is_done)}>
                     {item.title}
