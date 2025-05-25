@@ -17,8 +17,8 @@ https://snap-stock-mocha.vercel.app<br/>
 - [React-toastify](https://github.com/ahnshy/react-toastify)
 <br/><br/>
 
-## Demo
-- Ready to vercel demo<br/>
+## Descriptions
+- to do someday<br/>
 
 
 
