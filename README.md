@@ -34,17 +34,13 @@ npm install
 ### 2.Use the nextjs-app
 
 ```bash
-npm run dev
-or
-next dev --turbo
+next dev
 ```
 <br/><br/>
 
 ### 3.Run the development server
 
 ```bash
-npm run build
-or
 next build
 ```
 <br/><br/>
