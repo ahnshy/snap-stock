@@ -1,7 +1,5 @@
 import { NextRequest, NextResponse } from "next/server"
 import { fetchTodos, addTodos } from "@/data/firestore"
-import { PrismaClient } from '@prisma/client';
-
 
 // get all list
 export async  function GET(req: NextRequest){
