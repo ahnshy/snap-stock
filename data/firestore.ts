@@ -59,19 +59,20 @@ function getDB() {
 
 // get all docs
 export async function fetchTodos(): Promise<Todo[]> {
-
   const fetched: Todo[] = [];
-  const session = await getServerSession(authOptions);
-  if (!session?.user?.email) {
-    return fetched;
-  }
+  // const session = await getServerSession(authOptions);
+  // if (!session?.user?.email) {
+  //   console.log("session is empty.");
+  //   return fetched;
+  // }
 
-  const email = session.user.email;
+  //const email = session.user.email;
+  //console.log(`login email : `, email);
 
   const db = getDB();
   const todosRef = collection(db, "todos");
   const descQuery = query(todosRef,
-                    where("uid", "==", email),
+                    //where("uid", "==", email),
                     orderBy("create_at", "desc"));
   const snapshot = await getDocs(descQuery);
 
