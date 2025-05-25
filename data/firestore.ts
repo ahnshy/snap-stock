@@ -11,10 +11,11 @@ import {
   updateDoc,
   Timestamp,
   query,
-  orderBy, where,
+  orderBy,
+  //where,
 } from "firebase/firestore";
-import { getServerSession } from "next-auth/next";
-import { authOptions } from "@/app/lib/auth"
+//import { getServerSession } from "next-auth/next";
+//import { authOptions } from "@/app/lib/auth"
 import { Todo } from "@/types";
 
 const {
