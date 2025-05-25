@@ -127,7 +127,7 @@ const TodosTable = ({ todos }: { todos: Todo[] }) => {
     setSuggestions([]);
     router.refresh();
     setIsLoading(false);
-    notifySuccessEvent("Successfully added todo");
+    notifySuccessEvent("Successfully added stock.");
   };
 
   const editTodoHandler = async (
@@ -150,7 +150,7 @@ const TodosTable = ({ todos }: { todos: Todo[] }) => {
 
     router.refresh();
     setIsLoading(false);
-    notifySuccessEvent("Successfully modified todo");
+    notifySuccessEvent("Successfully modified stock.");
   };
 
   const deleteTodoHandler = async (id: string) => {
@@ -164,7 +164,7 @@ const TodosTable = ({ todos }: { todos: Todo[] }) => {
 
     router.refresh();
     setIsLoading(false);
-    notifySuccessEvent("Successfully deleted todo");
+    notifySuccessEvent("Successfully deleted stock.");
   };
 
   const applyIsDoneCSS = (isDone: boolean) =>
