@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { useSession, signIn } from "next-auth/react";
 import {
   Table,
@@ -37,6 +37,33 @@ interface Suggestion {
   price?: number;
 }
 
+function useStockPrices(symbols: string[]) {
+  const [prices, setPrices] = useState<Record<string, number | null>>({});
+
+  useEffect(() => {
+    if (symbols.length === 0) return;
+    const fetchAll = async () => {
+      const result: Record<string, number | null> = {};
+      await Promise.all(
+          symbols.map(async (sym) => {
+            try {
+              const res = await fetch(`/api/quote/${sym}`);
+              if (!res.ok) throw new Error();
+              const { price } = await res.json();
+              result[sym] = price;
+            } catch {
+              result[sym] = null;
+            }
+          })
+      );
+      setPrices(result);
+    };
+    fetchAll();
+  }, [symbols.join(",")]);
+
+  return prices;
+}
+
 const TodosTable = ({ todos }: { todos: Todo[] }) => {
   const { data: session, status } = useSession();
   const [todoAddEnable, setTodoAddEnable] = useState(false);
@@ -53,7 +80,6 @@ const TodosTable = ({ todos }: { todos: Todo[] }) => {
   const router = useRouter();
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
   const notifySuccessEvent = (msg: string) => toast.success(msg);
-
   useEffect(() => {
     if (!newTodoInput) {
       setSuggestions([]);
@@ -144,6 +170,21 @@ const TodosTable = ({ todos }: { todos: Todo[] }) => {
   const applyIsDoneCSS = (isDone: boolean) =>
       isDone ? "line-through text-gray-500" : "";
 
+  const symbols = useMemo(
+      () => todos.map((t) => t.id.slice(0, 6)),
+      [todos]
+  );
+
+  const prices = useStockPrices(symbols);
+  const enrichedTodos = useMemo(
+      () =>
+          todos.map((item) => {
+            const sym = item.id.slice(0, 6);
+            return { ...item, price: prices[sym] ?? null };
+          }),
+      [todos, prices]
+  );
+
   return (
       <div className="flex flex-col space-y-4">
         {/* Modal */}
@@ -199,15 +240,7 @@ const TodosTable = ({ todos }: { todos: Todo[] }) => {
                     />
                 )}
                 {suggestions.length > 0 && (
-                    <ul
-                        className="
-                  absolute z-10 mt-1 w-full max-h-60 overflow-y-auto
-                  rounded-lg bg-white dark:bg-gray-800
-                  border border-gray-200 dark:border-gray-700
-                  shadow-lg
-                  divide-y divide-gray-100 dark:divide-gray-700
-                "
-                    >
+                    <ul className="absolute z-10 mt-1 w-full max-h-60 overflow-y-auto rounded-lg bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-lg divide-y divide-gray-100 dark:divide-gray-700">
                       {suggestions.map((s) => (
                           <li
                               key={s.code}
@@ -217,20 +250,13 @@ const TodosTable = ({ todos }: { todos: Todo[] }) => {
                                 setTodoAddEnable(true);
                                 setSuggestions([]);
                               }}
-                              className="
-                      flex justify-between items-center px-4 py-2
-                      cursor-pointer
-                      hover:bg-gray-100 dark:hover:bg-gray-700
-                      transition-colors duration-150
-                    "
+                              className="flex justify-between items-center px-4 py-2 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-150"
                           >
                     <span className="font-medium text-base text-gray-900 dark:text-gray-100">
                       {s.name} ({s.code})
                     </span>
                             <span className="font-semibold text-sm text-gray-700 dark:text-gray-300">
-                      {s.price != null
-                          ? `${s.price.toLocaleString()}원`
-                          : "가격 정보 없음"}
+                      {s.price != null ? `${s.price.toLocaleString()}원` : "가격 정보 없음"}
                     </span>
                           </li>
                       ))}
@@ -259,7 +285,7 @@ const TodosTable = ({ todos }: { todos: Todo[] }) => {
             <TableColumn>메뉴</TableColumn>
           </TableHeader>
           <TableBody emptyContent="There are no items to show.">
-            {todos.map((item) => (
+            {enrichedTodos.map((item) => (
                 <TableRow key={item.id}>
                   <TableCell className={applyIsDoneCSS(item.is_done)}>
                     {item.id.slice(0, 6)}
@@ -268,7 +294,9 @@ const TodosTable = ({ todos }: { todos: Todo[] }) => {
                     {item.title}
                   </TableCell>
                   <TableCell className={applyIsDoneCSS(item.is_done)}>
-                    {item.is_done ? "Done" : "Progress"}
+                    {item.price != null
+                        ? item.price.toLocaleString()
+                        : "N/A"}
                   </TableCell>
                   <TableCell className={applyIsDoneCSS(item.is_done)}>
                     {new Date(item.create_at).toLocaleString()}
