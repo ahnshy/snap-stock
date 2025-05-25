@@ -66,7 +66,8 @@ export async function fetchTodos(): Promise<Todo[]> {
   snapshot.forEach((docSnap) => {
     const data = docSnap.data();
     fetched.push({
-      id: docSnap.id,
+      //id: docSnap.id,
+      id: data.id,
       title: data.title,
       is_done: data.is_done,
       create_at: data.create_at.toDate(),
@@ -105,7 +106,7 @@ export async function getTodo(id: string) {
   if (!snap.exists()) return null;
   const data = snap.data();
   return {
-    id: snap.id,
+    id: data.id,
     title: data.title,
     is_done: data.is_done,
     create_at: data.create_at.toDate(),
