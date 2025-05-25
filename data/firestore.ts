@@ -11,8 +11,10 @@ import {
   updateDoc,
   Timestamp,
   query,
-  orderBy,
+  orderBy, where,
 } from "firebase/firestore";
+import { getServerSession } from "next-auth/next";
+import { authOptions } from "@/app/lib/auth"
 import { Todo } from "@/types";
 
 const {
@@ -57,12 +59,22 @@ function getDB() {
 
 // get all docs
 export async function fetchTodos(): Promise<Todo[]> {
-  const db = getDB();
-  const todosRef = collection(db, "todos");
-  const descQuery = query(todosRef, orderBy("create_at", "desc"));
-  const snapshot = await getDocs(descQuery);
 
   const fetched: Todo[] = [];
+  const session = await getServerSession(authOptions);
+  if (!session?.user?.email) {
+    return fetched;
+  }
+
+  const email = session.user.email;
+
+  const db = getDB();
+  const todosRef = collection(db, "todos");
+  const descQuery = query(todosRef,
+                    where("uid", "==", email),
+                    orderBy("create_at", "desc"));
+  const snapshot = await getDocs(descQuery);
+
   snapshot.forEach((docSnap) => {
     const data = docSnap.data();
     fetched.push({
