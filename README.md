@@ -1,5 +1,5 @@
 # 📈 Snap-Stock
-A sleek and responsive real-time Korean stock monitoring dashboard built with **Next.js**, **NextUI**, and **Firebase**.
+A sleek and responsive real-time Korean stock monitoring dashboard built with **Next.js**, **NextUI**, and **Firebase**.<br/>
 🔗 **Live Demo**: [snap-stock-mocha.vercel.app](https://snap-stock-mocha.vercel.app)
 <br/><br/>
 
@@ -29,7 +29,8 @@ A sleek and responsive real-time Korean stock monitoring dashboard built with **
 ![Next Themes](https://img.shields.io/badge/Next--Themes-dark/light-informational?style=flat-square)
 ![React Toastify](https://img.shields.io/badge/React--Toastify-notifications-ff8800?style=flat-square)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.x-3178C6?logo=typescript&logoColor=white)
-![Vercel]<img src="https://img.shields.io/badge/Vercel-000000?logo=Vercel&logoColor=white"/>
+![Vercel](https://img.shields.io/badge/TypeScript-5.x-3178C6?logo=typescript&logoColor=white)
+![Vercel](https://img.shields.io/badge/Deployed%20on-Vercel-black?logo=vercel&logoColor=white)
 <br/><br/>
 ---
 
@@ -90,7 +91,10 @@ snap-stock/
 ---
 
 ## 💻 [Preview]
-
+<img width="897" height="954" alt="image" src="https://github.com/user-attachments/assets/91d36799-53b9-4db8-8deb-4e0a0075518b" />
+<img width="900" height="948" alt="image" src="https://github.com/user-attachments/assets/965eda25-14c3-47f6-95c6-7fa12c6a0fbe" />
+<img width="910" height="945" alt="image" src="https://github.com/user-attachments/assets/4dda2a02-631a-4772-8994-4af7a1a583b3" />
+<img width="942" height="951" alt="image" src="https://github.com/user-attachments/assets/c5f973fb-cdcd-4a53-9b1e-de973f6fe6ff" />
 <br/><br/>
 ---
 
