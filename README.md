@@ -1,7 +1,7 @@
 # 📈 Snap-Stock
-A sleek and responsive real-time Korean stock monitoring dashboard built with **Next.js**, **NextUI**, and **Firebase**.<br/>
+A sleek and responsive real-time Korean stock monitoring dashboard built with **Next.js**, **NextUI**, and **Firebase**.<br/><br/>
 🔗 **Live Demo**: [snap-stock-mocha.vercel.app](https://snap-stock-mocha.vercel.app)
-<br/><br/>
+<br/>
 
 ---
 
@@ -66,7 +66,7 @@ NEXT_PUBLIC_FIREBASE_APP_ID=your_app_id
 ### Development
 
 ```bash
-npm run dev
+next dev
 ```
 
 Open your browser to [http://localhost:3000](http://localhost:3000)
@@ -87,7 +87,7 @@ snap-stock/
 ├── public/         # Static assets (icons, logos)
 └── ...
 ```
-<br/><br/>
+
 ---
 
 ## 💻 [Preview]
