@@ -29,7 +29,6 @@ A sleek and responsive real-time Korean stock monitoring dashboard built with **
 ![Next Themes](https://img.shields.io/badge/Next--Themes-dark/light-informational?style=flat-square)
 ![React Toastify](https://img.shields.io/badge/React--Toastify-notifications-ff8800?style=flat-square)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.x-3178C6?logo=typescript&logoColor=white)
-![Vercel](https://img.shields.io/badge/TypeScript-5.x-3178C6?logo=typescript&logoColor=white)
 ![Vercel](https://img.shields.io/badge/Deployed%20on-Vercel-black?logo=vercel&logoColor=white)
 <br/><br/>
 ---
